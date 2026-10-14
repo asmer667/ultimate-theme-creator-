@@ -1,0 +1,35 @@
+name: Setup Flutter Project Structure
+
+on:
+  workflow_dispatch:
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.19.0'
+          channel: 'stable'
+      
+      - name: Create Flutter Project
+        run: |
+          flutter create --org com.neonfuto --project-name ultimate_theme_creator --platforms=android temp_project
+          cp -r temp_project/android ./android
+          cp temp_project/analysis_options.yaml ./analysis_options.yaml
+          cp temp_project/.gitignore ./.gitignore
+          cp temp_project/.metadata ./.metadata
+          rm -rf temp_project
+      
+      - name: Zip Project Structure
+        run: zip -r flutter_structure.zip android analysis_options.yaml .gitignore .metadata
+      
+      - name: Upload Structure
+        uses: actions/upload-artifact@v4
+        with:
+          name: flutter-structure
+          path: flutter_structure.zip
